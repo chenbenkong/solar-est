@@ -4,6 +4,8 @@ export const planetData = [
     radius: 4,
     distance: 100,
     color: 0xaaaaaa,
+    colorHex: '#b8b0a8',
+    type: '类地行星',
     orbitSpeed: 4.1,
     rotationSpeed: 0.004,
     realDiameter: '4,879公里',
@@ -13,29 +15,37 @@ export const planetData = [
     temperature: '430°C / -170°C',
     moons: '0',
     atmosphere: '几乎没有',
-    tilt: 0.01
+    tilt: 0.01,
+    fact: '离太阳最近，昼夜温差超过 600°C，表面布满陨石坑，几乎没有大气保温。'
   },
   {
     name: '金星',
     radius: 9.5,
     distance: 150,
     color: 0xe39e54,
+    colorHex: '#e6a85c',
+    type: '类地行星',
+    atmoColor: 0xffcc66,
     orbitSpeed: 1.6,
     rotationSpeed: 0.002,
     realDiameter: '12,104公里',
     realDistance: '10,820万公里',
     orbitPeriod: '225天',
-    rotationPeriod: '243天',
+    rotationPeriod: '243天（逆向）',
     temperature: '462°C',
     moons: '0',
     atmosphere: '二氧化碳, 氮气',
-    tilt: 177.3
+    tilt: 177.3,
+    fact: '浓厚二氧化碳大气造成失控温室效应，是太阳系最热的行星，比水星还热。'
   },
   {
     name: '地球',
     radius: 10,
     distance: 200,
     color: 0x2233ff,
+    colorHex: '#3a86ff',
+    type: '类地行星',
+    atmoColor: 0x4f9bff,
     orbitSpeed: 1,
     rotationSpeed: 0.01,
     realDiameter: '12,756公里',
@@ -46,13 +56,17 @@ export const planetData = [
     moons: '1',
     atmosphere: '氮气, 氧气',
     tilt: 23.5,
-    hasMoon: true
+    hasMoon: true,
+    fact: '目前已知唯一孕育生命的星球，71% 表面被液态水覆盖，拥有保护性的磁场与大气层。'
   },
   {
     name: '火星',
     radius: 5.3,
     distance: 280,
     color: 0xff3300,
+    colorHex: '#e2562f',
+    type: '类地行星',
+    atmoColor: 0xff6a4d,
     orbitSpeed: 0.53,
     rotationSpeed: 0.009,
     realDiameter: '6,792公里',
@@ -62,14 +76,17 @@ export const planetData = [
     temperature: '-63°C',
     moons: '2',
     atmosphere: '二氧化碳, 氮气',
-    tilt: 25.2
+    tilt: 25.2,
+    fact: '红色源于表面氧化铁（铁锈）。拥有太阳系最高的火山奥林匹斯山，约 22 公里高。'
   },
   {
     name: '木星',
     radius: 30,
     distance: 350,
     color: 0xffaa88,
-    stripeColors: [0xffaa88, 0xffcc99, 0xe69560, 0xcc7a3e],
+    colorHex: '#e0a878',
+    type: '气态巨行星',
+    atmoColor: 0xffd2a0,
     orbitSpeed: 0.084,
     rotationSpeed: 0.04,
     realDiameter: '142,984公里',
@@ -81,13 +98,17 @@ export const planetData = [
     atmosphere: '氢气, 氦气',
     tilt: 3.1,
     hasRings: true,
-    ringOpacity: 0.1
+    ringOpacity: 0.1,
+    fact: '太阳系最大行星，质量超其他行星总和的两倍。大红斑是已持续数百年的巨型风暴。'
   },
   {
     name: '土星',
     radius: 25,
     distance: 500,
     color: 0xffd700,
+    colorHex: '#e8c969',
+    type: '气态巨行星',
+    atmoColor: 0xffe6b0,
     orbitSpeed: 0.033,
     rotationSpeed: 0.038,
     realDiameter: '120,536公里',
@@ -100,13 +121,17 @@ export const planetData = [
     tilt: 26.7,
     hasRings: true,
     ringOpacity: 0.7,
-    ringColors: [0xcccccc, 0xdddddd, 0xeeeeee, 0xffffff]
+    ringColors: [0xcccccc, 0xdddddd, 0xeeeeee, 0xffffff],
+    fact: '以壮观的行星环闻名，环主要由冰粒与岩石碎块组成，宽度可达数十万公里却极薄。'
   },
   {
     name: '天王星',
     radius: 18,
     distance: 650,
     color: 0x99ccff,
+    colorHex: '#9fd8ff',
+    type: '冰巨星',
+    atmoColor: 0x7fe0ff,
     orbitSpeed: 0.012,
     rotationSpeed: 0.03,
     realDiameter: '51,118公里',
@@ -117,13 +142,17 @@ export const planetData = [
     moons: '27',
     atmosphere: '氢气, 氦气, 甲烷',
     tilt: 97.8,
-    hasRings: true
+    hasRings: true,
+    fact: '几乎"躺着"自转，自转轴倾斜近 98°。大气中的甲烷吸收红光，使其呈现青蓝色。'
   },
   {
     name: '海王星',
     radius: 17.5,
     distance: 800,
     color: 0x3366ff,
+    colorHex: '#3f6bff',
+    type: '冰巨星',
+    atmoColor: 0x4f7bff,
     orbitSpeed: 0.006,
     rotationSpeed: 0.032,
     realDiameter: '49,528公里',
@@ -133,13 +162,16 @@ export const planetData = [
     temperature: '-218°C',
     moons: '14',
     atmosphere: '氢气, 氦气, 甲烷',
-    tilt: 28.3
+    tilt: 28.3,
+    fact: '太阳系最远的行星，风速可超 2000 km/h，是已知风暴最猛烈的世界。'
   },
   {
     name: '冥王星',
     radius: 2.3,
     distance: 900,
     color: 0xaa7766,
+    colorHex: '#b07d68',
+    type: '矮行星',
     orbitSpeed: 0.004,
     rotationSpeed: 0.005,
     realDiameter: '2,376公里',
@@ -149,30 +181,37 @@ export const planetData = [
     temperature: '-232°C',
     moons: '5',
     atmosphere: '氮, 甲烷',
-    tilt: 122.5
+    tilt: 122.5,
+    fact: '2006 年被重新归类为矮行星。表面有氮冰，心形区域"汤博区"最为著名。'
   }
 ];
 
 export const sunInfo = {
   name: '太阳',
+  colorHex: '#ffb347',
+  type: '恒星 · G型主序星',
   realDiameter: '1,392,700公里',
   realDistance: '0 (太阳系中心)',
   orbitPeriod: '2.5亿年 (绕银河系中心)',
   rotationPeriod: '25.4天',
   temperature: '表面: 5,500°C, 核心: 15,000,000°C',
   moons: '8 (行星)',
-  atmosphere: '氢气, 氦气'
+  atmosphere: '氢气, 氦气',
+  fact: '占太阳系总质量约 99.86%，核心通过核聚变每秒将约 6 亿吨氢转化为氦。'
 };
 
 export const moonInfo = {
   name: '月球',
+  colorHex: '#cfcfcf',
+  type: '卫星 · 地球的天然卫星',
   realDiameter: '3,474公里',
   realDistance: '38.4万公里 (与地球)',
   orbitPeriod: '27.3天',
-  rotationPeriod: '27.3天',
+  rotationPeriod: '27.3天 (潮汐锁定)',
   temperature: '100°C / -173°C',
   moons: '0',
-  atmosphere: '几乎没有'
+  atmosphere: '几乎没有',
+  fact: '始终以同一面朝向地球（潮汐锁定）。潮汐力主要由它引起，并缓慢拉长地球的一天。'
 };
 
 export const charonInfo = {

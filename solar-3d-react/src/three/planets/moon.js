@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
-export function createMoon(planetRadius) {
+export function createMoon(planetRadius, manager) {
   const moonGeometry = new THREE.SphereGeometry(planetRadius * 0.27, 128, 64);
   
   // 使用用户提供的月球贴图
-  const textureLoader = new THREE.TextureLoader();
+  const textureLoader = new THREE.TextureLoader(manager);
   const moonTexture = textureLoader.load(import.meta.env.BASE_URL + 'textures/moon.jpg');
   
   const moonMaterial = new THREE.MeshPhongMaterial({

@@ -3,6 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createSun } from './sun/createSun.js';
 import { createPlanets } from './planets/createPlanets.js';
 import { createStarfield } from './utils/createStarfield.js';
+import { createComposer } from './postprocessing/createComposer.js';
+import { createAsteroidBelt } from './objects/createAsteroidBelt.js';
 
 export class SolarSystemScene {
   constructor(container) {
@@ -36,10 +38,17 @@ export class SolarSystemScene {
     
     this.raycaster = null;
     this.mouse = null;
+
+    this.composer = null;
+    this.bloomPass = null;
+    this.asteroidBelt = null;
+    this.loadingManager = null;
+    this.onLoaded = null;
   }
 
   init() {
     this.scene = new THREE.Scene();
+    this.scene.background = this.createSpaceBackground();
     
     this.camera = new THREE.PerspectiveCamera(
       60,
@@ -95,11 +104,21 @@ export class SolarSystemScene {
     this.solarSystem = new THREE.Group();
     this.scene.add(this.solarSystem);
     
-    this.sun = createSun();
+    // 加载管理器：所有贴图加载完成后通知 UI 关闭加载页
+    this.loadingManager = new THREE.LoadingManager();
+    this.loadingManager.onLoad = () => {
+      if (this.onLoaded) this.onLoaded();
+    };
+    
+    this.sun = createSun(this.loadingManager);
     this.sun.castShadow = false;
     this.solarSystem.add(this.sun);
     
-    this.planetMeshes = createPlanets(this.solarSystem);
+    this.planetMeshes = createPlanets(this.solarSystem, this.loadingManager);
+    
+    // 火星—木星之间的小行星带
+    this.asteroidBelt = createAsteroidBelt();
+    this.solarSystem.add(this.asteroidBelt);
     
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -107,7 +126,29 @@ export class SolarSystemScene {
     this.setupResize();
     this.setupClick();
     
+    // 后期处理：辉光管线
+    const { composer, bloomPass } = createComposer(this.renderer, this.scene, this.camera);
+    this.composer = composer;
+    this.bloomPass = bloomPass;
+    
     this.animate();
+  }
+
+  // 深空背景：细微的蓝紫径向渐变，避免纯黑的死板
+  createSpaceBackground() {
+    const c = document.createElement('canvas');
+    c.width = 64;
+    c.height = 64;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 46);
+    g.addColorStop(0, '#0b0b1c');
+    g.addColorStop(0.55, '#05060f');
+    g.addColorStop(1, '#000007');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
   }
 
   setupLighting() {
@@ -271,6 +312,7 @@ export class SolarSystemScene {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
+      if (this.composer) this.composer.setSize(window.innerWidth, window.innerHeight);
     });
   }
 
@@ -297,7 +339,7 @@ export class SolarSystemScene {
     // 防止相机进入星球内部
     this.preventCameraInsidePlanets();
     
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
   }
 
   updatePlanets() {
@@ -327,6 +369,11 @@ export class SolarSystemScene {
         planet.moon.rotation.y += 0.0003 * this.timeSpeed;
       }
     });
+    
+    // 小行星带整体缓慢公转
+    if (this.asteroidBelt) {
+      this.asteroidBelt.rotation.y += 0.0003 * this.timeSpeed;
+    }
   }
 
   updateSun() {
@@ -394,6 +441,10 @@ export class SolarSystemScene {
 
   setPaused(paused) {
     this.isPaused = paused;
+  }
+
+  setBloom(enabled) {
+    if (this.bloomPass) this.bloomPass.enabled = enabled;
   }
 
   setTimeSpeed(speed) {

@@ -5,7 +5,23 @@ export function PlanetInfo({ celestial, onClose, onCancelTracking }) {
 
   return (
     <div className="planet-info visible">
-      <h2>{celestial.name}</h2>
+      <div
+        className="planet-info-header"
+        style={{ background: `linear-gradient(135deg, ${celestial.color || '#444'} 0%, rgba(20,22,40,0.9) 75%)` }}
+      >
+        <div className="planet-info-title">
+          <span className="planet-info-name">{celestial.name}</span>
+          {celestial.type && <span className="planet-info-type">{celestial.type}</span>}
+        </div>
+      </div>
+
+      {celestial.fact && (
+        <p className="planet-info-fact">
+          <span className="fact-label">趣闻</span>
+          {celestial.fact}
+        </p>
+      )}
+
       <table className="info-table">
         <tbody>
           <tr>
@@ -38,13 +54,10 @@ export function PlanetInfo({ celestial, onClose, onCancelTracking }) {
           </tr>
         </tbody>
       </table>
+
       <div className="button-container">
-        <button className="close-info-btn" onClick={onClose}>
-          关闭信息
-        </button>
-        <button className="cancel-tracking-btn" onClick={onCancelTracking}>
-          取消追踪
-        </button>
+        <button className="close-info-btn" onClick={onClose}>关闭信息</button>
+        <button className="cancel-tracking-btn" onClick={onCancelTracking}>取消追踪</button>
       </div>
     </div>
   );

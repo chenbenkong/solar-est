@@ -3,7 +3,7 @@ import { planetData } from '../../data/planetData.js';
 import { createPlanetTexture, createNormalMap } from './planetTextures.js';
 import { createMoon } from './moon.js';
 
-export function createPlanets(solarSystem) {
+export function createPlanets(solarSystem, manager) {
   const planetMeshes = [];
 
   planetData.forEach(planet => {
@@ -46,6 +46,11 @@ export function createPlanets(solarSystem) {
     mesh.receiveShadow = true;
     solarSystem.add(mesh);
 
+    // 大气辉光：Fresnel 边缘光，让行星轮廓在黑暗中泛起柔光
+    if (planet.atmoColor) {
+      mesh.add(createAtmosphere(planet.radius, planet.atmoColor));
+    }
+
     const orbitGeometry = new THREE.RingGeometry(planet.distance - 0.3, planet.distance + 0.3, 256);
     const orbitMaterial = new THREE.MeshBasicMaterial({
       color: 0x3366aa,
@@ -64,7 +69,7 @@ export function createPlanets(solarSystem) {
     };
 
     if (planet.hasMoon) {
-      const { moon, moonOrbit } = createMoon(planet.radius);
+      const { moon, moonOrbit } = createMoon(planet.radius, manager);
       moon.castShadow = true;
       moon.receiveShadow = true;
       mesh.add(moon);
@@ -84,8 +89,43 @@ export function createPlanets(solarSystem) {
   return planetMeshes;
 }
 
+// 基于 Fresnel 的边缘辉光：背面渲染 + 叠加混合，中心透明、边缘发亮
+function createAtmosphere(radius, color) {
+  const geometry = new THREE.SphereGeometry(radius * 1.035, 64, 64);
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      glowColor: { value: new THREE.Color(color) },
+      coeff: { value: 0.62 },
+      power: { value: 3.2 }
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      uniform float coeff;
+      uniform float power;
+      varying vec3 vNormal;
+      void main() {
+        // 相机空间法线 z 分量：边缘处接近 0，正面接近 1
+        float intensity = pow(clamp(coeff - dot(vNormal, vec3(0.0, 0.0, 1.0)), 0.0, 1.0), power);
+        gl_FragColor = vec4(glowColor, intensity);
+      }
+    `,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false
+  });
+  return new THREE.Mesh(geometry, material);
+}
+
 function createJupiterMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的木星贴图
   const jupiterTexture = loader.load(import.meta.env.BASE_URL + 'textures/jupiter.jpg');
   
@@ -99,7 +139,7 @@ function createJupiterMaterial() {
 }
 
 function createSaturnMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的土星贴图
   const saturnTexture = loader.load(import.meta.env.BASE_URL + 'textures/saturn.jpg');
   
@@ -113,7 +153,7 @@ function createSaturnMaterial() {
 }
 
 function createEarthMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   const earthTexture = loader.load(import.meta.env.BASE_URL + 'textures/earth.jpg');
   const normalTexture = loader.load(import.meta.env.BASE_URL + 'textures/earth_normal.jpg');
   const specularTexture = loader.load(import.meta.env.BASE_URL + 'textures/earth_specular.jpg');
@@ -131,7 +171,7 @@ function createEarthMaterial() {
 }
 
 function createMarsMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的火星贴图
   const marsTexture = loader.load(import.meta.env.BASE_URL + 'textures/mars.jpg');
   
@@ -145,7 +185,7 @@ function createMarsMaterial() {
 }
 
 function createVenusMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的金星贴图
   const venusTexture = loader.load(import.meta.env.BASE_URL + 'textures/venus.jpg');
   
@@ -159,7 +199,7 @@ function createVenusMaterial() {
 }
 
 function createMercuryMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的水星贴图
   const mercuryTexture = loader.load(import.meta.env.BASE_URL + 'textures/mercury.jpg');
   
@@ -173,7 +213,7 @@ function createMercuryMaterial() {
 }
 
 function createUranusMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的天王星贴图
   const uranusTexture = loader.load(import.meta.env.BASE_URL + 'textures/uranus.jpg');
   
@@ -187,7 +227,7 @@ function createUranusMaterial() {
 }
 
 function createNeptuneMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的海王星贴图
   const neptuneTexture = loader.load(import.meta.env.BASE_URL + 'textures/neptune.jpg');
   
@@ -201,7 +241,7 @@ function createNeptuneMaterial() {
 }
 
 function createPlutoMaterial() {
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的冥王星贴图
   const plutoTexture = loader.load(import.meta.env.BASE_URL + 'textures/pluto.jpg');
   

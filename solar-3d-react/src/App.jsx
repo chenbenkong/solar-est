@@ -4,6 +4,8 @@ import { ControlPanel } from './components/ControlPanel';
 import { PlanetInfo } from './components/PlanetInfo';
 import { StatusDisplay } from './components/StatusDisplay';
 import { PlanetLabels } from './components/PlanetLabels';
+import { Header } from './components/Header';
+import { LoadingScreen } from './components/LoadingScreen';
 import { sunInfo, moonInfo } from './data/planetData';
 import './styles/index.css';
 
@@ -11,16 +13,18 @@ export default function App() {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const audioRef = useRef(null);
-  
+
   const [isPaused, setIsPaused] = useState(false);
   const [timeSpeed, setTimeSpeed] = useState(1);
   const [showOrbits, setShowOrbits] = useState(true);
   const [showStars, setShowStars] = useState(true);
-  const [showNames, setShowNames] = useState(false);
+  const [showNames, setShowNames] = useState(true);
   const [globalScale, setGlobalScale] = useState(1.0);
   const [selectedCelestial, setSelectedCelestial] = useState(null);
   const [planetPositions, setPlanetPositions] = useState(null);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [bloom, setBloom] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -28,10 +32,14 @@ export default function App() {
     const scene = new SolarSystemScene(containerRef.current);
     scene.init();
     sceneRef.current = scene;
+    scene.onLoaded = () => setLoaded(true);
 
     scene.onPlanetClick = (planet) => {
       setSelectedCelestial({
         name: planet.name,
+        color: planet.colorHex,
+        type: planet.type,
+        fact: planet.fact,
         realDiameter: planet.realDiameter,
         realDistance: planet.realDistance,
         orbitPeriod: planet.orbitPeriod,
@@ -59,7 +67,7 @@ export default function App() {
 
   useEffect(() => {
     if (!sceneRef.current) return;
-    
+
     const intervalId = setInterval(() => {
       if (sceneRef.current) {
         const positions = sceneRef.current.getPlanetScreenPositions();
@@ -68,6 +76,12 @@ export default function App() {
     }, 100);
 
     return () => clearInterval(intervalId);
+  }, []);
+
+  // 兜底：即便个别贴图加载异常，也在 6 秒后强制关闭加载页
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 6000);
+    return () => clearTimeout(t);
   }, []);
 
   const handleTogglePause = useCallback(() => {
@@ -119,6 +133,16 @@ export default function App() {
       const newValue = !prev;
       if (sceneRef.current) {
         sceneRef.current.setShowNames(newValue);
+      }
+      return newValue;
+    });
+  }, []);
+
+  const handleToggleBloom = useCallback(() => {
+    setBloom(prev => {
+      const newValue = !prev;
+      if (sceneRef.current) {
+        sceneRef.current.setBloom(newValue);
       }
       return newValue;
     });
@@ -179,27 +203,31 @@ export default function App() {
 
   return (
     <div className="app">
+      <LoadingScreen visible={!loaded} progress={loaded ? 100 : 35} />
+      <Header zoomLevel={globalScale} speedLevel={timeSpeed} isPaused={isPaused} />
+
       <div ref={containerRef} className="canvas-container" />
-      
-      <StatusDisplay 
+
+      <StatusDisplay
         zoomLevel={globalScale}
         speedLevel={timeSpeed}
       />
-      
+
       <PlanetLabels positions={planetPositions} />
-      
+
       <PlanetInfo
         celestial={selectedCelestial}
         onClose={handleCloseInfo}
         onCancelTracking={handleCancelTracking}
       />
-      
+
       <ControlPanel
         isPaused={isPaused}
         timeSpeed={timeSpeed}
         showOrbits={showOrbits}
         showStars={showStars}
         showNames={showNames}
+        showBloom={bloom}
         globalScale={globalScale}
         isMusicPlaying={isMusicPlaying}
         onTogglePause={handleTogglePause}
@@ -208,6 +236,7 @@ export default function App() {
         onToggleOrbits={handleToggleOrbits}
         onToggleStars={handleToggleStars}
         onToggleNames={handleToggleNames}
+        onToggleBloom={handleToggleBloom}
         onResetView={handleResetView}
         onToggleMusic={handleToggleMusic}
       />

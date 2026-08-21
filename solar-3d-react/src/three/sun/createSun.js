@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import { createMagmaEffect } from './magmaEffect.js';
 import { createSolarParticleSystem } from './solarParticles.js';
 
-export function createSun() {
+export function createSun(manager) {
   const sunRadius = 50;
   
   const sunGeometry = new THREE.SphereGeometry(sunRadius, 128, 128);
   
   // 使用用户提供的太阳贴图
-  const textureLoader = new THREE.TextureLoader();
+  const textureLoader = new THREE.TextureLoader(manager);
   const sunTexture = textureLoader.load(import.meta.env.BASE_URL + 'textures/sun.jpg');
   
   const sunMaterial = new THREE.MeshBasicMaterial({

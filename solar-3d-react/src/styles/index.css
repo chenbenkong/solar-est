@@ -451,6 +451,48 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: none;
 }
 
+/* ============ 致命错误浮层 ============ */
+.fatal-error {
+  position: absolute;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: radial-gradient(ellipse at center, #1a0d12 0%, #04060f 100%);
+  color: #ffd9d9;
+  text-align: center;
+}
+
+.fatal-error h2 {
+  font-size: 1.4rem;
+  color: #ff8a8a;
+  letter-spacing: 0.15rem;
+}
+
+.fatal-error pre {
+  max-width: 90vw;
+  max-height: 50vh;
+  overflow: auto;
+  padding: 1rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 138, 138, 0.4);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.fatal-error p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
 /* ============ 响应式 ============ */
 @media (max-width: 768px) {
   .app-header {

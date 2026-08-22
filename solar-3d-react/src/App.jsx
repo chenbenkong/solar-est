@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, Component } from 'react';
 import { SolarSystemScene } from './three/SolarSystemScene';
 import { ControlPanel } from './components/ControlPanel';
 import { PlanetInfo } from './components/PlanetInfo';
@@ -8,6 +8,32 @@ import { Header } from './components/Header';
 import { LoadingScreen } from './components/LoadingScreen';
 import { sunInfo, moonInfo } from './data/planetData';
 import './styles/index.css';
+
+// 错误边界：捕获子组件渲染期异常，避免整页空白（黑屏）且无提示
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[solar] 组件渲染异常：', error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="fatal-error">
+          <h2>页面出错了</h2>
+          <pre>{String(this.state.error && this.state.error.stack || this.state.error)}</pre>
+          <p>请把上面这段报错发给我，我来修。</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const containerRef = useRef(null);
@@ -25,6 +51,19 @@ export default function App() {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [bloom, setBloom] = useState(true);
   const [loaded, setLoaded] = useState(false);
+  const [fatalError, setFatalError] = useState(null);
+
+  // 全局捕获未被 React 边界兜住的运行时错误，直接显示在页面上
+  useEffect(() => {
+    const onError = (e) => setFatalError((prev) => prev || (e.error ? (e.error.stack || e.error.message) : e.message));
+    const onReject = (e) => setFatalError((prev) => prev || (e.reason ? (e.reason.stack || e.reason.message || String(e.reason)) : '未知异步错误'));
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onReject);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onReject);
+    };
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -202,7 +241,15 @@ export default function App() {
   }, [handleTogglePause, handleSpeedChange, timeSpeed]);
 
   return (
-    <div className="app">
+    <ErrorBoundary>
+      {fatalError && (
+        <div className="fatal-error">
+          <h2>页面运行时出错</h2>
+          <pre>{String(fatalError)}</pre>
+          <p>请把上面这段报错发给我，我来定位修复。</p>
+        </div>
+      )}
+      <div className="app">
       <LoadingScreen visible={!loaded} progress={loaded ? 100 : 35} />
       <Header zoomLevel={globalScale} speedLevel={timeSpeed} isPaused={isPaused} />
 
@@ -240,6 +287,7 @@ export default function App() {
         onResetView={handleResetView}
         onToggleMusic={handleToggleMusic}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

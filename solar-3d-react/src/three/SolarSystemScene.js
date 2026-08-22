@@ -41,6 +41,7 @@ export class SolarSystemScene {
 
     this.composer = null;
     this.bloomPass = null;
+    this.composerBroken = false;
     this.asteroidBelt = null;
     this.loadingManager = null;
     this.onLoaded = null;
@@ -126,10 +127,16 @@ export class SolarSystemScene {
     this.setupResize();
     this.setupClick();
     
-    // 后期处理：辉光管线
-    const { composer, bloomPass } = createComposer(this.renderer, this.scene, this.camera);
-    this.composer = composer;
-    this.bloomPass = bloomPass;
+    // 后期处理：辉光管线（构造失败则退回普通渲染，保证场景始终可见）
+    try {
+      const { composer, bloomPass } = createComposer(this.renderer, this.scene, this.camera);
+      this.composer = composer;
+      this.bloomPass = bloomPass;
+    } catch (e) {
+      console.error('[solar] 后期辉光管线初始化失败，退回普通渲染：', e);
+      this.composer = null;
+      this.bloomPass = null;
+    }
     
     this.animate();
   }
@@ -338,8 +345,21 @@ export class SolarSystemScene {
     
     // 防止相机进入星球内部
     this.preventCameraInsidePlanets();
-    
-    this.composer.render();
+
+    // 渲染：优先走辉光后期管线；一旦抛错则永久退回普通渲染，避免整屏黑屏
+    if (this.composerBroken || !this.composer) {
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
+    try {
+      this.composer.render();
+    } catch (e) {
+      console.error('[solar] composer.render 失败，退回普通渲染：', e);
+      this.composerBroken = true;
+      try {
+        this.renderer.render(this.scene, this.camera);
+      } catch (_) { /* 忽略，下一帧继续 */ }
+    }
   }
 
   updatePlanets() {

@@ -12,23 +12,23 @@ export function createPlanets(solarSystem, manager) {
     let material;
     
     if (planet.name === '木星') {
-      material = createJupiterMaterial();
+      material = createJupiterMaterial(manager);
     } else if (planet.name === '土星') {
-      material = createSaturnMaterial();
+      material = createSaturnMaterial(manager);
     } else if (planet.name === '地球') {
-      material = createEarthMaterial();
+      material = createEarthMaterial(manager);
     } else if (planet.name === '火星') {
-      material = createMarsMaterial();
+      material = createMarsMaterial(manager);
     } else if (planet.name === '金星') {
-      material = createVenusMaterial();
+      material = createVenusMaterial(manager);
     } else if (planet.name === '水星') {
-      material = createMercuryMaterial();
+      material = createMercuryMaterial(manager);
     } else if (planet.name === '天王星') {
-      material = createUranusMaterial();
+      material = createUranusMaterial(manager);
     } else if (planet.name === '海王星') {
-      material = createNeptuneMaterial();
+      material = createNeptuneMaterial(manager);
     } else if (planet.name === '冥王星') {
-      material = createPlutoMaterial();
+      material = createPlutoMaterial(manager);
     } else {
       material = new THREE.MeshPhongMaterial({
         color: planet.color,
@@ -124,7 +124,7 @@ function createAtmosphere(radius, color) {
   return new THREE.Mesh(geometry, material);
 }
 
-function createJupiterMaterial() {
+function createJupiterMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的木星贴图
   const jupiterTexture = loader.load(import.meta.env.BASE_URL + 'textures/jupiter.jpg');
@@ -138,7 +138,7 @@ function createJupiterMaterial() {
   });
 }
 
-function createSaturnMaterial() {
+function createSaturnMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的土星贴图
   const saturnTexture = loader.load(import.meta.env.BASE_URL + 'textures/saturn.jpg');
@@ -152,7 +152,7 @@ function createSaturnMaterial() {
   });
 }
 
-function createEarthMaterial() {
+function createEarthMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   const earthTexture = loader.load(import.meta.env.BASE_URL + 'textures/earth.jpg');
   const normalTexture = loader.load(import.meta.env.BASE_URL + 'textures/earth_normal.jpg');
@@ -170,7 +170,7 @@ function createEarthMaterial() {
   });
 }
 
-function createMarsMaterial() {
+function createMarsMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的火星贴图
   const marsTexture = loader.load(import.meta.env.BASE_URL + 'textures/mars.jpg');
@@ -184,7 +184,7 @@ function createMarsMaterial() {
   });
 }
 
-function createVenusMaterial() {
+function createVenusMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的金星贴图
   const venusTexture = loader.load(import.meta.env.BASE_URL + 'textures/venus.jpg');
@@ -198,7 +198,7 @@ function createVenusMaterial() {
   });
 }
 
-function createMercuryMaterial() {
+function createMercuryMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的水星贴图
   const mercuryTexture = loader.load(import.meta.env.BASE_URL + 'textures/mercury.jpg');
@@ -212,7 +212,7 @@ function createMercuryMaterial() {
   });
 }
 
-function createUranusMaterial() {
+function createUranusMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的天王星贴图
   const uranusTexture = loader.load(import.meta.env.BASE_URL + 'textures/uranus.jpg');
@@ -226,7 +226,7 @@ function createUranusMaterial() {
   });
 }
 
-function createNeptuneMaterial() {
+function createNeptuneMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的海王星贴图
   const neptuneTexture = loader.load(import.meta.env.BASE_URL + 'textures/neptune.jpg');
@@ -240,7 +240,7 @@ function createNeptuneMaterial() {
   });
 }
 
-function createPlutoMaterial() {
+function createPlutoMaterial(manager) {
   const loader = new THREE.TextureLoader(manager);
   // 使用用户提供的冥王星贴图
   const plutoTexture = loader.load(import.meta.env.BASE_URL + 'textures/pluto.jpg');
